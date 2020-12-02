@@ -1,3 +1,8 @@
+ 
+
+
+---
+
 [![PyPI](https://img.shields.io/pypi/v/pytorch-fid.svg)](https://pypi.org/project/pytorch-fid/)
 
 # FID score for PyTorch
@@ -70,6 +75,8 @@ If you use this repository in your research, consider citing it using the follow
 ```
 
 ## License
+
+Original repository is https://github.com/mseitzer/pytorch-fid
 
 This implementation is licensed under the Apache License 2.0.
 

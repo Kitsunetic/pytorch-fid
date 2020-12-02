@@ -1,4 +1,5 @@
 import os
+
 import setuptools
 
 
@@ -11,7 +12,6 @@ def read(rel_path):
 def get_version(rel_path):
     for line in read(rel_path).splitlines():
         if line.startswith('__version__'):
-            # __version__ = "0.9"
             delim = '"' if '"' in line else "'"
             return line.split(delim)[1]
 
@@ -22,13 +22,12 @@ if __name__ == '__main__':
     setuptools.setup(
         name='pytorch-fid',
         version=get_version('src/pytorch_fid/__init__.py'),
-        author='Max Seitzer',
-        author_email='current.address@unknown.invalid',
-        description=('Package for calculating Frechet Inception Distance (FID)'
-                     ' using PyTorch'),
+        author='Kitsunetic',
+        author_email='1996.jh.shim@gmail.com',
+        description='Package for calculating Frechet Inception Distance (FID) using PyTorch',
         long_description=read('README.md'),
         long_description_content_type='text/markdown',
-        url='https://github.com/mseitzer/pytorch-fid',
+        url='https://github.com/Kitsunetic/pytorch-fid.git',
         package_dir={'': 'src'},
         packages=setuptools.find_packages(where='src/'),
         classifiers=[
