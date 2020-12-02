@@ -60,9 +60,19 @@ parser.add_argument('--dims', type=int, default=2048,
 parser.add_argument('--save-stat1', type=str)
 parser.add_argument('--save-stat2', type=str)
 parser.add_argument('--dataset-size', type=int, default=-1)
+parser.add_argument('--seed', type=int, default=0)
 parser.add_argument('path', type=str, nargs=2,
                     help=('Paths to the generated images or '
                           'to .npz statistic files'))
+
+
+def seed_everything(seed):
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
 
 
 class ImagesPathDataset(torch.utils.data.Dataset):
@@ -78,7 +88,7 @@ class ImagesPathDataset(torch.utils.data.Dataset):
         img = Image.open(path).convert('RGB')
         if self.transforms is not None:
             img = self.transforms(img)
-        return img
+        return img, str(path)
 
 
 def calculate_frechet_distance(mu1, sigma1, mu2, sigma2, eps=1e-6):
@@ -164,7 +174,7 @@ def calculate_activation_statistics(files, model, batch_size=50, dims=2048, devi
 
     preds = []
     with tqdm(total=len(dl), ncols=100) as t:
-        for batch in dl:
+        for batch, path in dl:
             batch = batch.to(device)
             pred = model(batch)[0]
 
@@ -192,7 +202,8 @@ def _compute_statistics_of_path(path, model, batch_size, dims, device, dataset_s
         mu, sigma = f['mu'][:], f['sigma'][:]
     else:
         path = pathlib.Path(path)
-        files = list(path.glob('*.jpg')) + list(path.glob('*.png'))
+        # files = list(path.glob('*.jpg')) + list(path.glob('*.png'))
+        files = list(filter(lambda x: x.name[len(x.stem):].lower() in ['.jpg', '.jpeg', '.png'], path.rglob('*')))
         if dataset_size > 0:
             if len(files) > dataset_size:
                 print(path.name, ': Choose', dataset_size, 'files from', len(files))
@@ -237,6 +248,7 @@ def calculate_fid_given_paths(paths, batch_size, device, dims, dataset_size=-1, 
 
 def main():
     args = parser.parse_args()
+    seed_everything(args.seed)
 
     if args.device is None:
         device = torch.device('cuda' if (torch.cuda.is_available()) else 'cpu')
